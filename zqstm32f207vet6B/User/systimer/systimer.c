@@ -6,8 +6,8 @@
 #include "systimer.h"
 #include "stm32f2xx_rcc.h"
 
-#define SYSTEMTICK_PERIOD_MS  1
-/* this variable is used to create a time reference incremented by 10ms */
+#define SYSTEMTICK_PERIOD_MS  (1)
+/* this variable is used to create a time reference incremented by 1ms */
 vu32 LocalTime = 0;
 
 void systimer_init(void)
@@ -16,7 +16,7 @@ void systimer_init(void)
 	
 	/* SystTick configuration: an interrupt every 1ms */
 	RCC_GetClocksFreq(&RCC_Clocks);
-	SysTick_Config(RCC_Clocks.SYSCLK_Frequency / 1000);
+	SysTick_Config(RCC_Clocks.SYSCLK_Frequency / (1000/SYSTEMTICK_PERIOD_MS));
 
 	/* Update the SysTick IRQ priority should be higher than the Ethernet IRQ */
 	/* The Localtime should be updated during the Ethernet packets processing */

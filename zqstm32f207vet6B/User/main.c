@@ -4,8 +4,7 @@
 #include "nvic/nvic.h"
 #include "shell/shell.h"
 #include "systimer/systimer.h"
-#include "eth/eth.h"
-
+#include "netconf/netconf.h"
 
 typedef  void (*pFunction)(void);
 
@@ -31,9 +30,12 @@ int main(void)
 	
 	dbp("\n\n%s %s\n", __DATE__, __TIME__);
 	dbp("BOOT = stm32f207vet6\n");
-	//zq_eth_init();
+	LwIP_Init();
 	shell_init();
 	while(1){
+		/* handle periodic timers for LwIP */
+		LwIP_Periodic_Handle(LocalTime);
+		
 		if((LocalTime - currenttime0) == 5000){
 			dbp("5s\n");
 			currenttime0 = LocalTime;
@@ -42,5 +44,6 @@ int main(void)
 			currenttime1 = LocalTime;
 			dbp("10\n");
 		}
+		
 	}
 }
