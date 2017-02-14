@@ -32,7 +32,7 @@ C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\arm\CMSIS\Include
 -D_APP_=1
 -DSTM32F2XX=1
 -DUSE_STDPERIPH_DRIVER=1
--DAPP_Address=((uint32_t)0x08004000)
+-DAPP_Address=((uint32_t)0x08008000)
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0
@@ -224,7 +224,7 @@ C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\arm\CMSIS\Include
 -D__HAS_LOCATED_WITH_INIT__=1
 -D__IAR_COMPILERBASE__=593924
 -D__DATE__="Feb 14 2017"
--D__TIME__="14:03:20"
+-D__TIME__="22:02:55"
 -D__STDC__=1
 -D__STDC_VERSION__=199901L
 -D__STDC_HOSTED__=1

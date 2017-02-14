@@ -171,7 +171,7 @@
           <state>_APP_</state>
           <state>STM32F2XX</state>
           <state>USE_STDPERIPH_DRIVER</state>
-          <state>APP_Address=((uint32_t)0x08004000)</state>
+          <state>APP_Address=((uint32_t)0x08008000)</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
