@@ -78,3 +78,5 @@ $RECYCLE.BIN/
 # createself
 *.pbi
 *.cout
+*.pbi.cout
+*.bak

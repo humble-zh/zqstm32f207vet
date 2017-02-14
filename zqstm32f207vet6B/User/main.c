@@ -6,6 +6,9 @@
 #include "systimer/systimer.h"
 #include "netconf/netconf.h"
 
+#include "udptest/udptest.h"
+#include "tcptest/tcptest.h"
+
 typedef  void (*pFunction)(void);
 
 int main(void)
@@ -31,18 +34,25 @@ int main(void)
 	dbp("\n\n%s %s\n", __DATE__, __TIME__);
 	dbp("BOOT = stm32f207vet6\n");
 	LwIP_Init();
+	udptest_server_init();
+	udptest_client_init();
+	tcptest_server_init();
+	tcptest_client_init();
 	shell_init();
 	while(1){
 		/* handle periodic timers for LwIP */
 		LwIP_Periodic_Handle(LocalTime);
 		
-		if((LocalTime - currenttime0) == 5000){
-			dbp("5s\n");
+		if((LocalTime - currenttime0) >= 500){
+			//dbp("0.5s\n");
 			currenttime0 = LocalTime;
 		}
-		if((LocalTime - currenttime1) == 10000){
+		if((LocalTime - currenttime1) >= 1000){
 			currenttime1 = LocalTime;
-			dbp("10\n");
+			udptest_send_data();
+			check_tcp_connected();
+			tcptest_send_data();
+			//dbp("1s\n");
 		}
 		
 	}

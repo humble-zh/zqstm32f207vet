@@ -316,6 +316,18 @@
         <name>$PROJ_DIR$\..\User\shell\fgetopt\fgetopt.c</name>
       </file>
     </group>
+    <group>
+      <name>tcptest</name>
+      <file>
+        <name>$PROJ_DIR$\..\User\tcptest\tcptest.c</name>
+      </file>
+    </group>
+    <group>
+      <name>udptest</name>
+      <file>
+        <name>$PROJ_DIR$\..\User\udptest\udptest.c</name>
+      </file>
+    </group>
     <file>
       <name>$PROJ_DIR$\..\User\dbg.c</name>
     </file>
