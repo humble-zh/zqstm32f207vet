@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    netconf.h
   * @author  MCD Application Team
-  * @version V1.0.2
-  * @date    06-June-2011 
+  * @version V1.1.0
+  * @date    07-October-2011 
   * @brief   This file contains all the functions prototypes for the netconf.c 
   *          file.
   ******************************************************************************

@@ -2031,6 +2031,12 @@
   <group>
     <name>User</name>
     <group>
+      <name>AllPages</name>
+      <file>
+        <name>$PROJ_DIR$\..\User\httpserver\allpages\ptest.c</name>
+      </file>
+    </group>
+    <group>
       <name>Cmd</name>
       <file>
         <name>$PROJ_DIR$\..\User\shell\cmd\echo\echo.c</name>
@@ -2059,6 +2065,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\User\lwipport\STM32F2x7\Standalone\ethernetif.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\User\httpserver\httpfs.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\User\httpserver\httpserver.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\User\main.c</name>

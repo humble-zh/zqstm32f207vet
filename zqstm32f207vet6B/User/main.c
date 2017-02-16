@@ -8,13 +8,14 @@
 
 #include "udptest/udptest.h"
 #include "tcptest/tcptest.h"
+#include "httpserver/httpserver.h"
 
 typedef  void (*pFunction)(void);
 
 int main(void)
 {
-	u32 currenttime0 = 0;
-	u32 currenttime1 = 0;
+	u32 lasttime0 = 0;
+	u32 lasttime1 = 0;
 	
 	pFunction Jump2App = (pFunction)(*(vu32*) (APP_Address + 4));
 	nvic_global_init();
@@ -38,17 +39,18 @@ int main(void)
 	udptest_client_init();
 	tcptest_server_init();
 	tcptest_client_init();
+	IAP_httpd_init();
 	shell_init();
 	while(1){
 		/* handle periodic timers for LwIP */
 		LwIP_Periodic_Handle(LocalTime);
 		
-		if((LocalTime - currenttime0) >= 500){
+		if((LocalTime - lasttime0) >= 500){
 			//dbp("0.5s\n");
-			currenttime0 = LocalTime;
+			lasttime0 = LocalTime;
 		}
-		if((LocalTime - currenttime1) >= 1000){
-			currenttime1 = LocalTime;
+		if((LocalTime - lasttime1) >= 1000){
+			lasttime1 = LocalTime;
 			udptest_send_data();
 			check_tcp_connected();
 			tcptest_send_data();

@@ -25,6 +25,7 @@
 /* LWIP */
 #define _LWIP_
 #ifdef _LWIP_
+//#define USE_DHCP
 /*Static IP ADDRESS*/
 #define IP_ADDR0   192
 #define IP_ADDR1   168
@@ -40,5 +41,13 @@
 #define GW_ADDR1   168
 #define GW_ADDR2   1
 #define GW_ADDR3   1
+
+#define USE_IAP_HTTP
+#ifdef USE_IAP_HTTP
+/* UserID and Password definition *********************************************/
+#define USERID       "admin"
+#define PASSWORD     "admin"
+#define LOGIN_SIZE   (15+ sizeof(USERID) + sizeof(PASSWORD))
+#endif	//USE_IAP_HTTP
 #endif	//_LWIP_
 

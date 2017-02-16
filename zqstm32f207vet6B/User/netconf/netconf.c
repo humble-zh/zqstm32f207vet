@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    netconf.c
   * @author  MCD Application Team
-  * @version V1.0.2
-  * @date    06-June-2011
+  * @version V1.1.0
+  * @date    07-October-2011
   * @brief   Network connection configuration
   ******************************************************************************
   * @attention
@@ -34,8 +34,19 @@
 #include "netconf.h"
 #include <stdio.h>
 
+#ifdef _LWIP_
+/* Private typedef -----------------------------------------------------------*/
+#define MAX_DHCP_TRIES        4
 
-
+/* Private define ------------------------------------------------------------*/
+typedef enum 
+{ 
+  DHCP_START=0,
+  DHCP_WAIT_ADDRESS,
+  DHCP_ADDRESS_ASSIGNED,
+  DHCP_TIMEOUT
+} 
+DHCP_State_TypeDef;
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 struct netif netif;
@@ -43,9 +54,14 @@ uint32_t TCPTimer = 0;
 uint32_t ARPTimer = 0;
 uint32_t IPaddress = 0;
 
+#ifdef USE_DHCP
+uint32_t DHCPfineTimer = 0;
+uint32_t DHCPcoarseTimer = 0;
+DHCP_State_TypeDef DHCP_state = DHCP_START;
+#endif
+
 /* Private functions ---------------------------------------------------------*/
 void LwIP_DHCP_Process_Handle(void);
-#ifdef _LWIP_
 /**
   * @brief  Initializes the lwIP stack
   * @param  None
@@ -56,7 +72,14 @@ void LwIP_Init(void)
   struct ip_addr ipaddr;
   struct ip_addr netmask;
   struct ip_addr gw;
-	
+
+#ifndef USE_DHCP
+ #ifdef USE_LCD  
+  uint8_t iptab[4];
+  uint8_t iptxt[20];
+ #endif /* USE_LCD */
+#endif /* USE_DHCP */
+
   /* Initializes the dynamic memory heap defined by MEM_SIZE.*/
   mem_init();
 
@@ -72,7 +95,18 @@ void LwIP_Init(void)
   IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
   IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 
-#endif
+ #ifdef USE_LCD  
+   iptab[0] = IP_ADDR3;
+   iptab[1] = IP_ADDR2;
+   iptab[2] = IP_ADDR1;
+   iptab[3] = IP_ADDR0;
+
+   sprintf((char*)iptxt, "  %d.%d.%d.%d", iptab[3], iptab[2], iptab[1], iptab[0]); 
+      
+   LCD_DisplayStringLine(Line8, (uint8_t*)"  Static IP address   ");
+   LCD_DisplayStringLine(Line9, iptxt);
+ #endif /* USE_LCD */
+#endif /* USE_DHCP */
 
   /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
             struct ip_addr *netmask, struct ip_addr *gw,
@@ -156,7 +190,7 @@ void LwIP_Periodic_Handle(__IO uint32_t localtime)
     if ((DHCP_state != DHCP_ADDRESS_ASSIGNED)&&(DHCP_state != DHCP_TIMEOUT))
     { 
       /* toggle LED1 to indicate DHCP on-going process */
-      STM_EVAL_LEDToggle(LED1);
+      //STM_EVAL_LEDToggle(LED1);
       
       /* process DHCP state machine */
       LwIP_DHCP_Process_Handle();    
@@ -172,7 +206,6 @@ void LwIP_Periodic_Handle(__IO uint32_t localtime)
   
 #endif
 }
-#endif	//_LWIP_
 
 #ifdef USE_DHCP
 /**
@@ -185,8 +218,8 @@ void LwIP_DHCP_Process_Handle()
   struct ip_addr ipaddr;
   struct ip_addr netmask;
   struct ip_addr gw;
-  uint8_t iptab[4];
-  uint8_t iptxt[20];
+  //uint8_t iptab[4];
+  //uint8_t iptxt[20];
 
   switch (DHCP_state)
   {
@@ -195,6 +228,11 @@ void LwIP_DHCP_Process_Handle()
       dhcp_start(&netif);
       IPaddress = 0;
       DHCP_state = DHCP_WAIT_ADDRESS;
+#ifdef USE_LCD
+      LCD_DisplayStringLine(Line4, (uint8_t*)"     Looking for    ");
+      LCD_DisplayStringLine(Line5, (uint8_t*)"     DHCP server    ");
+      LCD_DisplayStringLine(Line6, (uint8_t*)"     please wait... ");
+#endif
     }
     break;
 
@@ -209,6 +247,25 @@ void LwIP_DHCP_Process_Handle()
 
         /* Stop DHCP */
         dhcp_stop(&netif);
+
+#ifdef USE_LCD      
+        iptab[0] = (uint8_t)(IPaddress >> 24);
+        iptab[1] = (uint8_t)(IPaddress >> 16);
+        iptab[2] = (uint8_t)(IPaddress >> 8);
+        iptab[3] = (uint8_t)(IPaddress);
+
+        sprintf((char*)iptxt, " %d.%d.%d.%d", iptab[3], iptab[2], iptab[1], iptab[0]);       
+
+        LCD_ClearLine(Line4);
+        LCD_ClearLine(Line5);
+        LCD_ClearLine(Line6);
+
+        /* Display the IP address */
+        LCD_DisplayStringLine(Line7, (uint8_t*)"IP address assigned ");
+        LCD_DisplayStringLine(Line8, (uint8_t*)"  by a DHCP server  ");
+        LCD_DisplayStringLine(Line9, iptxt);
+#endif
+        //STM_EVAL_LEDOn(LED1);
       }
       else
       {
@@ -225,6 +282,25 @@ void LwIP_DHCP_Process_Handle()
           IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_ADDR2, NETMASK_ADDR3);
           IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
           netif_set_addr(&netif, &ipaddr , &netmask, &gw);
+
+#ifdef USE_LCD   
+          LCD_DisplayStringLine(Line7, (uint8_t*)"    DHCP timeout    ");
+
+          iptab[0] = IP_ADDR3;
+          iptab[1] = IP_ADDR2;
+          iptab[2] = IP_ADDR1;
+          iptab[3] = IP_ADDR0;
+
+          sprintf((char*)iptxt, "  %d.%d.%d.%d", iptab[3], iptab[2], iptab[1], iptab[0]); 
+
+          LCD_ClearLine(Line4);
+          LCD_ClearLine(Line5);
+          LCD_ClearLine(Line6);
+
+          LCD_DisplayStringLine(Line8, (uint8_t*)"  Static IP address   ");
+          LCD_DisplayStringLine(Line9, iptxt);         
+#endif    
+          //STM_EVAL_LEDOn(LED1);
         }
       }
     }
@@ -233,5 +309,5 @@ void LwIP_DHCP_Process_Handle()
   }
 }
 #endif      
-
+#endif	//_LWIP_
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
